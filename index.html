@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>专属于雨花石的祝福</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #000;
+    }
+    /* 首屏文字样式 - 向上移3%、向右移3% */
+    #first-screen {
+      position: absolute;
+      top: 47%;
+      left: 53%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: #fff;
+      text-align: center;
+      opacity: 1;
+      transition: opacity 1s ease;
+      width: 100%;
+      padding: 0 20px;
+      z-index: 10;
+    }
+    #first-screen span {
+      background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #ffe66d);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    /* 祝福便签样式 - 固定宽高避免尺寸差异 */
+    .note {
+      position: absolute;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #fff;
+      border-radius: 6px;
+      opacity: 0;
+      pointer-events: none;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      width: 120px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    /* 烟花容器样式 */
+    #fireworks {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    /* 音量控制按钮 */
+    #volume-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <audio id="bgm" loop preload="auto">
+    <source src="嗜好 (1).mp3" type="audio/mpeg">
+    你的浏览器不支持音频播放
+	</audio>
+
+  <!-- 首屏显示文字 -->
+  <div id="first-screen">
+    <span>专属于雨花石的祝福</span>
+  </div>
+  <!-- 烟花容器 -->
+  <div id="fireworks"></div>
+  <!-- 音量控制按钮 -->
+  <button id="volume-btn">🔊</button>
+
+  <script>
+    const blessingTexts = [
+      "遇见你很开心", 
+      "记得吃饭",
+      "天气冷了，我很想你",
+      "好好爱自己",
+      "多喝温水",
+      "注意保暖",
+      "按时吃饭",
+      "少熬夜哦",
+      "愿所以的烦恼的消失",
+      "多喝水哦",
+      "顺顺利利，开开心心",
+      "别太累，偶尔偷懒也好",
+      "照顾好自己",
+      "睡个好觉",
+      "记得添衣，别感冒啦",
+      "慢点走，别摔",
+      "糖果和你，我都想要",
+      "热红酒和烤栗子都不如你",
+      "别着急，慢慢来",
+      "天热了，抱抱自己",
+      "别减了，你不胖",
+      "别减了，你不胖",
+      "晚上别一个人走",
+      "睡觉盖好被子",
+      "平安喜乐，万事胜意",
+      "开心点嘛",
+      "我一直在",
+      "别皱眉了",
+      "别委屈自己",
+      "想哭就哭吧",
+      "烦恼都忘掉",
+      "眼睛歇一会",
+      "少看手机",
+      "头发吹干再睡",
+      "别挑食",
+      "多吃点菜",
+      "别怕，我在",
+      "今天辛苦啦",
+      "明天会更好的",
+      "闭眼休息一会",
+      "别想太多",
+      "别蹲太久，头晕",
+      "慢慢起，别急",
+      "顺其自然就好",
+      "多晒晒太阳",
+      "空气干燥多喝水",
+      "起来走动一下",
+      "别一直坐着",
+      "手机充满电",
+      "别勉强自己",
+      "做自己就好",
+      "我陪你",
+      "听你的",
+      "换季容易感冒",
+      "好好爱自己",
+      "别难过啦",
+      "哄你睡觉",
+      "盖好肚子",
+      "做个美梦",
+      "晚安，好梦",
+      "开心最重要",
+      "别憋着委屈",
+      "抱抱，别难过",
+      "累了就靠靠我",
+      "别给自己压力",
+      "不开心就告诉我",
+      "允许自己脆弱",
+      "我永远听你说",
+      "烦恼都会过去的",
+      "别太内耗了",
+      "别和他人生气",
+      "心事可以说给我",
+      "想哭就哭出来",
+      "陪你散散心",
+      "今天顺心吗",
+      "别钻牛角尖",
+      "深呼吸，放轻松",
+      "你的快乐第一",
+      "好心情比啥都强",
+      "闹情绪我接着",
+      "抱一下就好了",
+      "别太苛求自己",
+      "情绪低落就歇歇",
+      "烦躁就出去走走",
+      "你值得被偏爱",
+      "不许偷偷难过",
+      "别为烂人烂事烦"
+    ];
+    const totalNotes = 80;
+    const showInterval = 300;
+    let noteIndex = 0;
+    let isMuted = false;
+    let allNotes = []; 
+    let isHeartForming = false;
+    // 记录已占用的位置区域，避免重叠
+    const occupiedAreas = [];
+    // 标签宽高（与CSS一致）
+    const noteWidth = 120;
+    const noteHeight = 40;
+    // 间距
+    const gap = 10;
+
+    window.addEventListener('load', () => {
+      const bgm = document.getElementById('bgm');
+      const volumeBtn = document.getElementById('volume-btn');
+
+      bgm.play().catch(err => {
+        document.addEventListener('click', () => {
+          bgm.play();
+        }, { once: true });
+      });
+
+      volumeBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        bgm.muted = isMuted;
+        volumeBtn.innerText = isMuted ? "🔇" : "🔊";
+      });
+
+      setTimeout(() => {
+        document.getElementById('first-screen').style.opacity = 0;
+        setTimeout(startShowNotes, 1000);
+      }, 2000);
+
+      initFireworks();
+    });
+
+    // 检测位置是否重叠
+    function isOverlap(x, y) {
+      for (let area of occupiedAreas) {
+        const dx = Math.abs(x - area.x);
+        const dy = Math.abs(y - area.y);
+        if (dx < (noteWidth + gap) && dy < (noteHeight + gap)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function startShowNotes() {
+      if (noteIndex >= totalNotes) {
+        setTimeout(() => {
+          formHeartShape();
+        }, 1000);
+        return;
+      }
+      createNote();
+      noteIndex++;
+      setTimeout(startShowNotes, showInterval);
+    }
+
+    function createNote() {
+      const note = document.createElement('div');
+      note.className = 'note';
+      note.innerText = blessingTexts[noteIndex % blessingTexts.length];
+
+      // 循环生成不重叠的位置
+      let x, y;
+      let maxAttempts = 100;
+      let attempts = 0;
+      do {
+        x = Math.random() * (window.innerWidth - noteWidth - gap * 2) + gap;
+        y = Math.random() * (window.innerHeight - noteHeight - gap * 2) + gap;
+        attempts++;
+      } while (isOverlap(x, y) && attempts < maxAttempts);
+
+      // 记录占用区域
+      occupiedAreas.push({x, y});
+
+      note.style.left = x + 'px';
+      note.style.top = y + 'px';
+      note.style.opacity = 1;
+      note.style.transform = 'scale(1)';
+      note.style.transition = 'none';
+
+      const gradColors = [
+        ['#ff6b6b', '#4ecdc4'],
+        ['#ffd1dc', '#c3b1e1'],
+        ['#ffc3a0', '#ffafbd'],
+        ['#f7b731', '#fc4a1a'],
+        ['#40e0d0', '#ff8c00'],
+        ['#87ceeb', '#ffb6c1'],
+        ['#90caf9', '#f48fb1']
+      ];
+      const randomGrad = gradColors[Math.floor(Math.random() * gradColors.length)];
+      note.style.background = `linear-gradient(45deg, ${randomGrad[0]}, ${randomGrad[1]})`;
+
+      document.body.appendChild(note);
+      allNotes.push(note);
+    }
+
+    function formHeartShape() {
+      if (isHeartForming) return;
+      isHeartForming = true;
+
+      // 心形水平位置：向右移3%后为0.48窗口宽度
+      const centerX = window.innerWidth * 0.48;
+      // 心形垂直位置：0.4窗口高度
+      const centerY = window.innerHeight * 0.4;
+      // 心形尺寸系数：再下调5%后为0.030008125
+      const heartSize = Math.min(window.innerWidth, window.innerHeight) * 0.030008125;
+
+      // 目标标签文本
+      const targetText = "遇见你很开心";
+      // 找到目标标签在数组中的索引
+      const targetIndex = allNotes.findIndex(note => note.innerText === targetText);
+      
+      allNotes.forEach((note, index) => {
+        let x, y;
+        // 若为目标标签，设置心形起始点（t=0）的坐标
+        if (index === targetIndex) {
+          // 心形参数方程 t=0 时的坐标
+          x = centerX + heartSize * (16 * Math.pow(Math.sin(0), 3));
+          y = centerY-heartSize * (13 * Math.cos(0)-5 * Math.cos(2*0)-2 * Math.cos(3*0)-Math.cos(4*0));
+        } else {
+          const t = (index / allNotes.length) * Math.PI * 2;
+          x = centerX + heartSize * (16 * Math.pow(Math.sin(t), 3));
+          y = centerY-heartSize * (13 * Math.cos(t)-5 * Math.cos(2*t)-2 * Math.cos(3*t)-Math.cos(4*t));
+          x += (Math.random()-0.5) * 2;
+          y += (Math.random()-0.5) * 2;
+        }
+
+        note.style.transition = 'left 3s ease-in-out, top 3s ease-in-out';
+        note.style.left = x + 'px';
+        note.style.top = y + 'px';
+        note.style.opacity = 1;
+      });
+
+      // 心形聚合完成后，文字重新显示
+      setTimeout(() => {
+        document.getElementById('first-screen').style.opacity = 1;
+      }, 3000);
+    }
+
+    function initFireworks() {
+      const canvas = document.createElement('canvas');
+      canvas.id = 'fireworks';
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      document.body.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+
+      setInterval(() => {
+        const fireX = Math.random() * window.innerWidth;
+        const fireY = Math.random() * window.innerHeight * 0.6;
+        createFirework(fireX, fireY);
+      }, 1000);
+
+      function createFirework(x, y) {
+        const particles = [];
+        const particleCount = 50;
+        for (let i = 0; i < particleCount; i++) {
+          particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random()-0.5) * 8,
+            vy: (Math.random()-0.8) * 8,
+            alpha: 1,
+            color: `hsl(${Math.random()*360}, 100%, 70%)`
+          });
+        }
+
+        function update() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          particles.forEach((p, idx) => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.alpha -= 0.01;
+            p.vy += 0.1;
+
+            if (p.alpha <= 0) {
+              particles.splice(idx, 1);
+              return;
+            }
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 200, 100, ${p.alpha})`;
+            ctx.fill();
+          });
+          if (particles.length > 0) {
+            requestAnimationFrame(update);
+          }
+        }
+        update();
+      }
+
+      // 窗口大小变化时，烟花画布自适应
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    }
+  </script>
+</body>
+</html>
